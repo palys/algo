@@ -1,3 +1,6 @@
+#ifndef TRIE_H
+#define TRIE_H
+
 #include<string>
 
 const int N = 'z' - 'a' + 1;
@@ -16,3 +19,5 @@ class trie {
         void add(std::string s);
         bool contains(std::string s);
 };
+
+#endif

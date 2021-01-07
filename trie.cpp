@@ -3,9 +3,9 @@
 
 #include "trie.hpp"
 
-trie::trie() {
+node::node() {
     for (int i = 0; i < N; ++i) {
-        this->root->children[i] = nullptr;
+        this->children[i] = nullptr;
     }
 }
 

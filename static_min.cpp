@@ -5,6 +5,7 @@ using namespace std;
 class static_min {
     int n;
     vector<vector<int> > tables;
+    vector<int> max_pow_2;
 
     public:
         static_min(vector<int> t);
@@ -26,14 +27,17 @@ static_min::static_min(vector<int> t): n(t.size()) {
         len <<= 1;
         i++;
     }
+
+    max_pow_2.push_back(0);
+    max_pow_2.push_back(0);
+    for (int i = 2; i <= n; i++) {
+        max_pow_2.push_back(max_pow_2[i >> 1] + 1);
+    }
 }
 
 int static_min::min(int from, int to) {
-    int i = 0;
     int len = to - from + 1;
-    while ((2 << i) <= len) {
-        ++i;
-    }
+    int i = max_pow_2[len];
     return std::min(tables[i][from], tables[i][to - (1 << i) + 1]);
 }
 

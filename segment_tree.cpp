@@ -26,8 +26,8 @@ segment_tree::~segment_tree() {
 void segment_tree::modify(int k, int x) {
     k += n;
     t[k] += x;
-    for (k /= 2; k >= 1; k /= 2) {
-        t[k] = t[2 * k] + t[2 * k + 1];
+    for (k >>= 1; k >= 1; k >>= 1) {
+        t[k] = t[k << 1] + t[(k << 1) + 1];
     }
 }
 
@@ -36,14 +36,14 @@ int segment_tree::query(int a, int b) {
     b += n;
     int s = 0;
     while (a <= b) {
-        if (a % 2 == 1) {
+        if (a & 1) {
             s += t[a++];
         }
-        if (b % 2 == 0) {
+        if (!(b & 1)) {
             s += t[b--];
         }
-        a /= 2;
-        b /= 2;
+        a >>= 1;
+        b >>= 1;
     }
     return s;
 }

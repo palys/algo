@@ -1,6 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<utility>
+#include<tuple>
 
 using namespace std;
 
@@ -15,6 +16,7 @@ public:
     void dfs(int start);
     void clear_visited();
     bool is_connected();
+    vector<tuple<int, int, int> > edges();
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
@@ -73,6 +75,16 @@ void graph::add(int from, int to, int value = 1) {
     nodes[to].push_back({from, value});
 }
 
+vector<tuple<int, int, int> > graph::edges() {
+    vector<tuple<int, int, int> > v;
+    for (int i = 0; i < n; i++) {
+        for (auto & e : nodes[i]) {
+            v.push_back({i, e.first, e.second});
+        }
+    }
+    return v;
+}
+
 void test_connected() {
     graph g(5);
     g.add(0, 1);
@@ -84,6 +96,14 @@ void test_connected() {
     cout << g.is_connected() << "\n";
 }
 
+void test_edges(graph & g) {
+    for (auto & e : g.edges()) {
+        int from, to, value;
+        tie(from, to, value) = e;
+        cout << from << " " << to << " " << value << "\n";
+    }
+}
+
 int main() {
     graph g(5);
     g.add(0, 1);
@@ -93,6 +113,7 @@ int main() {
     g.add(2, 4);
     g.add(3, 4);
     cout << g;
+    test_edges(g);
     test_connected();
     return 0;
 }

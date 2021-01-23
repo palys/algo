@@ -5,6 +5,8 @@
 
 using namespace std;
 
+const int INF = 1 << 30;
+
 class graph {
     vector< pair<int, int> > * nodes;
     int n;
@@ -12,11 +14,15 @@ class graph {
 public:
     graph(int n);
     ~graph();
+    int size() {
+        return n;
+    }
     void add(int from, int to, int value);
     void dfs(int start);
     void clear_visited();
     bool is_connected();
     vector<tuple<int, int, int> > edges();
+    int * bellman_ford(int start);
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
@@ -85,6 +91,24 @@ vector<tuple<int, int, int> > graph::edges() {
     return v;
 }
 
+int * graph::bellman_ford(int start) {
+    int * t = new int[n];
+    for (int i = 0; i < n; i++) {
+        t[i] = INF;
+    }
+    t[start] = 0;
+
+    auto ee = edges();
+    for (int i = 0; i < n - 1; i++) {
+        for (auto & e : ee) {
+            int from, to, value;
+            tie(from, to, value) = e;
+            t[to] = min(t[to], t[from] + value);
+        }
+    }
+    return t;
+}
+
 void test_connected() {
     graph g(5);
     g.add(0, 1);
@@ -96,12 +120,30 @@ void test_connected() {
     cout << g.is_connected() << "\n";
 }
 
-void test_edges(graph & g) {
+void print_edges(graph & g) {
     for (auto & e : g.edges()) {
         int from, to, value;
         tie(from, to, value) = e;
         cout << from << " " << to << " " << value << "\n";
     }
+}
+
+void test_bellman_ford() {
+    graph g(5);
+    g.add(0, 1, 5);
+    g.add(0, 2, 3);
+    g.add(0, 3, 7);
+    g.add(1, 3, 3);
+    g.add(1, 4, 2);
+    g.add(2, 3, 1);
+    g.add(3, 4, 2);
+
+    int * dist = g.bellman_ford(0);
+    cout << "Dist:\n";
+    for (int i = 0; i < g.size(); i++) {
+        cout << i << " " << dist[i] << "\n";
+    }
+    delete[] dist;
 }
 
 int main() {
@@ -113,7 +155,8 @@ int main() {
     g.add(2, 4);
     g.add(3, 4);
     cout << g;
-    test_edges(g);
+    print_edges(g);
     test_connected();
+    test_bellman_ford();
     return 0;
 }

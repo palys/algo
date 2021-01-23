@@ -7,19 +7,54 @@ using namespace std;
 class graph {
     vector< pair<int, int> > * nodes;
     int n;
+    bool * visited;
 public:
     graph(int n);
     ~graph();
     void add(int from, int to, int value);
+    void dfs(int start);
+    void clear_visited();
+    bool is_connected();
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
 graph::graph(int n): n(n) {
     nodes = new vector< pair<int, int> >[n];
+    visited = new bool[n];
+    for (int i = 0; i < n; i++) {
+        visited[i] = false;
+    }
 }
 
 graph::~graph() {
     delete[] nodes;
+}
+
+void graph::dfs(int start) {
+    if (visited[start]) {
+        return;
+    }
+    visited[start] = true;
+    for (auto & edge : nodes[start]) {
+        dfs(edge.first);
+    }
+}
+
+void graph::clear_visited() {
+    for (int i = 0; i < n; i++) {
+        visited[i] = false;
+    }
+}
+
+bool graph::is_connected() {
+    clear_visited();
+    dfs(0);
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 ostream & operator<<(ostream & s, graph & g) {
@@ -38,6 +73,17 @@ void graph::add(int from, int to, int value = 1) {
     nodes[to].push_back({from, value});
 }
 
+void test_connected() {
+    graph g(5);
+    g.add(0, 1);
+    g.add(0, 3);
+    g.add(1, 4);
+    g.add(3, 4);
+    cout << g.is_connected();
+    g.add(0, 2);
+    cout << g.is_connected() << "\n";
+}
+
 int main() {
     graph g(5);
     g.add(0, 1);
@@ -47,5 +93,6 @@ int main() {
     g.add(2, 4);
     g.add(3, 4);
     cout << g;
+    test_connected();
     return 0;
 }

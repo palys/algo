@@ -2,6 +2,7 @@
 #include<vector>
 #include<utility>
 #include<tuple>
+#include<queue>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ public:
     bool is_connected();
     vector<tuple<int, int, int> > edges();
     int * bellman_ford(int start);
+    int * dijkstra(int start);
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
@@ -109,6 +111,40 @@ int * graph::bellman_ford(int start) {
     return t;
 }
 
+int * graph::dijkstra(int start) {
+    int * t = new int[n];
+    bool * processed = new bool[n];
+    for (int i = 0; i < n; i++) {
+        t[i] = INF;
+        processed[i] = false;
+    }
+    t[start] = 0;
+
+    priority_queue<pair<int, int> > q;
+    q.push({0, start});
+    while (!q.empty()) {
+        int v = q.top().second;
+        q.pop();
+        if (processed[v]) {
+            continue;
+        }
+        processed[v] = true;
+
+        for (auto & e : nodes[v]) {
+            int u = e.first;
+            int value = e.second;
+
+            if (t[v] + value < t[u]) {
+                t[u] = t[v] + value;
+                q.push({-t[u], u});
+            }
+        }
+    }
+
+    delete[] processed;
+    return t;
+}
+
 void test_connected() {
     graph g(5);
     g.add(0, 1);
@@ -139,7 +175,25 @@ void test_bellman_ford() {
     g.add(3, 4, 2);
 
     int * dist = g.bellman_ford(0);
-    cout << "Dist:\n";
+    cout << "Dist BF:\n";
+    for (int i = 0; i < g.size(); i++) {
+        cout << i << " " << dist[i] << "\n";
+    }
+    delete[] dist;
+}
+
+void test_dijkstra() {
+    graph g(5);
+    g.add(0, 1, 5);
+    g.add(0, 2, 3);
+    g.add(0, 3, 7);
+    g.add(1, 3, 3);
+    g.add(1, 4, 2);
+    g.add(2, 3, 1);
+    g.add(3, 4, 2);
+
+    int * dist = g.dijkstra(0);
+    cout << "Dist D:\n";
     for (int i = 0; i < g.size(); i++) {
         cout << i << " " << dist[i] << "\n";
     }
@@ -158,5 +212,6 @@ int main() {
     print_edges(g);
     test_connected();
     test_bellman_ford();
+    test_dijkstra();
     return 0;
 }

@@ -8,6 +8,48 @@ using namespace std;
 
 const int INF = 1 << 29;
 
+class FindUnion {
+    int n;
+    int * t;
+    int * size;
+public:
+    FindUnion(int n);
+    ~FindUnion();
+    int find(int x);
+    void unite(int a, int b);
+};
+
+FindUnion::FindUnion(int n): n(n) {
+    t = new int[n];
+    size = new int[n];
+    for (int i = 0; i < n; i++) {
+        t[i] = i;
+        size[i] = 1;
+    }
+}
+
+FindUnion::~FindUnion() {
+    delete[] t;
+    delete[] size;
+}
+
+int FindUnion::find(int x) {
+    if (t[x] != x) {
+        t[x] = find(t[x]);
+    }
+    return t[x];
+}
+
+void FindUnion::unite(int a, int b) {
+    a = find(a);
+    b = find(b);
+    if (size[a] < size[b]) {
+        std::swap(a, b);
+    }
+    size[a] += size[b];
+    t[b] = a;
+}
+
 class graph {
     vector< pair<int, int> > * nodes;
     int n;
@@ -268,6 +310,20 @@ void test_floyd_warshall2() {
     delete[] dist;
 }
 
+void test_find_union() {
+    FindUnion fu(10);
+    fu.unite(1, 4);
+    fu.unite(1, 7);
+    
+    fu.unite(6, 3);
+    fu.unite(8, 2);
+    fu.unite(3, 8);
+    for (int i = 0; i < 10; i++) {
+        cout << fu.find(i) << " ";
+    }
+    cout << "\n";
+}
+
 int main() {
     graph g(5);
     g.add(0, 1);
@@ -283,5 +339,6 @@ int main() {
     test_dijkstra();
     test_floyd_warshall();
     test_floyd_warshall2();
+    test_find_union();
     return 0;
 }

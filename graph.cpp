@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const int INF = 1 << 30;
+const int INF = 1 << 29;
 
 class graph {
     vector< pair<int, int> > * nodes;
@@ -25,6 +25,7 @@ public:
     vector<tuple<int, int, int> > edges();
     int * bellman_ford(int start);
     int * dijkstra(int start);
+    int ** floyd_warshall();
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
@@ -145,6 +146,30 @@ int * graph::dijkstra(int start) {
     return t;
 }
 
+int ** graph::floyd_warshall() {
+    int ** t = new int * [n];
+    for (int i = 0; i < n; i++) {
+        t[i] = new int[n];
+        for (int j = 0; j < n; j++) {
+            t[i][j] = INF;
+        }
+        t[i][i] = 0;
+        for (auto & e : nodes[i]) {
+            t[i][e.first] = e.second;
+        }
+    }
+
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                t[i][j] = min(t[i][j], t[i][k] + t[k][j]);
+            }
+        }
+    }
+
+    return t;
+}
+
 void test_connected() {
     graph g(5);
     g.add(0, 1);
@@ -200,6 +225,49 @@ void test_dijkstra() {
     delete[] dist;
 }
 
+void test_floyd_warshall() {
+    graph g(5);
+    g.add(0, 1, 5);
+    g.add(0, 2, 3);
+    g.add(0, 3, 7);
+    g.add(1, 3, 3);
+    g.add(1, 4, 2);
+    g.add(2, 3, 1);
+    g.add(3, 4, 2);
+
+    int ** dist = g.floyd_warshall();
+    cout << "Dist FW:\n";
+    for (int i = 0; i < g.size(); i++) {
+        for (int j = 0; j < g.size(); j++) {
+            cout << dist[i][j] << " ";
+        }
+        cout << "\n";
+        delete[] dist[i];
+    }
+    delete[] dist;
+}
+
+void test_floyd_warshall2() {
+    graph g(5);
+    g.add(0, 1, 5);
+    g.add(0, 3, 9);
+    g.add(0, 4, 1);
+    g.add(1, 2, 2);
+    g.add(2, 3, 7);
+    g.add(3, 4, 2);
+
+    int ** dist = g.floyd_warshall();
+    cout << "Dist FW2:\n";
+    for (int i = 0; i < g.size(); i++) {
+        for (int j = 0; j < g.size(); j++) {
+            cout << dist[i][j] << " ";
+        }
+        cout << "\n";
+        delete[] dist[i];
+    }
+    delete[] dist;
+}
+
 int main() {
     graph g(5);
     g.add(0, 1);
@@ -213,5 +281,7 @@ int main() {
     test_connected();
     test_bellman_ford();
     test_dijkstra();
+    test_floyd_warshall();
+    test_floyd_warshall2();
     return 0;
 }

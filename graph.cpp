@@ -3,6 +3,7 @@
 #include<utility>
 #include<tuple>
 #include<queue>
+#include<algorithm>
 
 using namespace std;
 
@@ -44,7 +45,7 @@ void FindUnion::unite(int a, int b) {
     a = find(a);
     b = find(b);
     if (size[a] < size[b]) {
-        std::swap(a, b);
+        swap(a, b);
     }
     size[a] += size[b];
     t[b] = a;
@@ -68,6 +69,7 @@ public:
     int * bellman_ford(int start);
     int * dijkstra(int start);
     int ** floyd_warshall();
+    vector<pair<int, int> > kruskal();
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
@@ -212,6 +214,29 @@ int ** graph::floyd_warshall() {
     return t;
 }
 
+vector<pair<int, int> > graph::kruskal() {
+    FindUnion fu(n);
+    vector<tuple<int, int, int> > edges;
+    for (int i = 0; i < n; i++) {
+        for (auto & e : nodes[i]) {
+            edges.push_back({e.second, i, e.first});
+        }
+    }
+    sort(edges.begin(), edges.end());
+
+    vector<pair<int, int> > result;
+    for (auto & e : edges) {
+        int value, u, v;
+        tie(value, u, v) = e;
+        if (fu.find(u) != fu.find(v)) {
+            fu.unite(u, v);
+            result.push_back({u, v});
+        }
+    }
+
+    return result;
+}
+
 void test_connected() {
     graph g(5);
     g.add(0, 1);
@@ -314,14 +339,32 @@ void test_find_union() {
     FindUnion fu(10);
     fu.unite(1, 4);
     fu.unite(1, 7);
-    
+
     fu.unite(6, 3);
     fu.unite(8, 2);
     fu.unite(3, 8);
+    cout << "FindUnion:\n";
     for (int i = 0; i < 10; i++) {
         cout << fu.find(i) << " ";
     }
     cout << "\n";
+}
+
+void test_kruskal() {
+    graph g(6);
+    g.add(0, 1, 3);
+    g.add(0, 4, 5);
+    g.add(1, 2, 5);
+    g.add(1, 4, 6);
+    g.add(2, 3, 9);
+    g.add(2, 5, 3);
+    g.add(3, 5, 7);
+    g.add(4, 5, 2);
+
+    cout << "Kruskal:\n";
+    for (auto & e : g.kruskal()) {
+        cout << e.first << " " << e.second << "\n";
+    }
 }
 
 int main() {
@@ -340,5 +383,6 @@ int main() {
     test_floyd_warshall();
     test_floyd_warshall2();
     test_find_union();
+    test_kruskal();
     return 0;
 }

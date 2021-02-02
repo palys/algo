@@ -7,11 +7,13 @@ using namespace std;
 class directed_graph {
     vector< pair<int, int> > * nodes;
     int n;
+    bool topological_sort_dfs(int v, int * state, vector<int> & result);
 public:
     directed_graph(int n);
     ~directed_graph();
     void add(int from, int to, int value);
     void add_two_way(int from, int to, int value);
+    vector<int> topological_sort();
     friend ostream & operator<<(ostream & s, directed_graph & g);
 };
 
@@ -43,6 +45,61 @@ void directed_graph::add_two_way(int from, int to, int value = 1) {
     add(to, from, value);
 }
 
+bool directed_graph::topological_sort_dfs(int v, int * state, vector<int> & result) {
+    if (state[v] == 0) {
+        state[v] = 1;
+        for (auto & e : nodes[v]) {
+            if (!topological_sort_dfs(e.first, state, result)) {
+                return false;
+            }
+        }
+        state[v] = 2;
+        result.push_back(v);
+    } else if (state[v] == 1) {
+        return false;
+    }
+    return true;
+}
+
+vector<int> directed_graph::topological_sort() {
+    vector<int> result;
+    int * state = new int[n];
+    for (int i = 0; i < n; i++) {
+        state[i] = 0;
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (!topological_sort_dfs(i, state, result)) {
+            delete[] state;
+            return vector<int>();
+        }
+    }
+
+    delete[] state;
+    return result;
+}
+
+void test_topological_sort() {
+    directed_graph g(6);
+    g.add(0, 1);
+    g.add(1, 2);
+    g.add(2, 5);
+    g.add(3, 0);
+    g.add(3, 4);
+    g.add(4, 1);
+    g.add(4, 2);
+    vector<int> sorted = g.topological_sort();
+    cout << "Topological sort: \n";
+    if (sorted.size() == 0) {
+        cout << "Has a cycle\n";
+    } else {
+        for (auto & v : sorted) {
+            cout << v << " ";
+        }
+        cout << "\n";
+    }
+}
+
 int main() {
     directed_graph g(5);
     g.add_two_way(0, 1);
@@ -52,5 +109,6 @@ int main() {
     g.add_two_way(2, 4);
     g.add_two_way(3, 4);
     cout << g;
+    test_topological_sort();
     return 0;
 }

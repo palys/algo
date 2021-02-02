@@ -1,6 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<utility>
+#include<algorithm>
 
 using namespace std;
 
@@ -14,6 +15,7 @@ public:
     void add(int from, int to, int value);
     void add_two_way(int from, int to, int value);
     vector<int> topological_sort();
+    vector<int> number_of_paths(int v);
     friend ostream & operator<<(ostream & s, directed_graph & g);
 };
 
@@ -74,6 +76,7 @@ vector<int> directed_graph::topological_sort() {
             return vector<int>();
         }
     }
+    reverse(result.begin(), result.end());
 
     delete[] state;
     return result;
@@ -100,6 +103,35 @@ void test_topological_sort() {
     }
 }
 
+vector<int> directed_graph::number_of_paths(int v) {
+    vector<int> count(n, 0);
+    count[v] = 1;
+    
+    for (int u : topological_sort()) {
+        for (auto & e : nodes[u]) {
+            count[e.first] += count[u];
+        }
+    }
+
+    return count;
+}
+
+void test_number_of_paths() {
+    directed_graph g(6);
+    g.add(0, 1);
+    g.add(1, 2);
+    g.add(2, 5);
+    g.add(3, 0);
+    g.add(3, 4);
+    g.add(4, 1);
+    g.add(4, 2);
+    vector<int> count = g.number_of_paths(3);
+    cout << "Number of paths from 3\n";
+    for (int i = 0; i < count.size(); i++) {
+        cout << i << ": " << count[i] << "\n";
+    }
+}
+
 int main() {
     directed_graph g(5);
     g.add_two_way(0, 1);
@@ -110,5 +142,6 @@ int main() {
     g.add_two_way(3, 4);
     cout << g;
     test_topological_sort();
+    test_number_of_paths();
     return 0;
 }

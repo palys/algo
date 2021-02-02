@@ -70,6 +70,7 @@ public:
     int * dijkstra(int start);
     int ** floyd_warshall();
     vector<pair<int, int> > kruskal();
+    vector<pair<int, int> > prim();
     friend ostream & operator<<(ostream & s, graph & g);
 };
 
@@ -237,6 +238,37 @@ vector<pair<int, int> > graph::kruskal() {
     return result;
 }
 
+vector<pair<int, int> > graph::prim() {
+    bool * processed = new bool[n];
+    for (int i = 0; i < n; i++) {
+        processed[i] = false;
+    }
+    vector<pair<int, int> > edges;
+    priority_queue<tuple<int, int, int> > q;
+
+    for (auto & e : nodes[0]) {
+        q.push({-e.second, 0, e.first});
+    }
+    processed[0] = true;
+    while (!q.empty()) {
+        int value, u, v;
+        tie(value, u, v) = q.top();
+        q.pop();
+        if (processed[v]) {
+            continue;
+        }
+        processed[v] = true;
+        edges.push_back({u, v});
+
+        for (auto & e : nodes[v]) {
+            q.push({-e.second, v, e.first});
+        }
+    }
+
+    delete[] processed;
+    return edges;
+}
+
 void test_connected() {
     graph g(5);
     g.add(0, 1);
@@ -367,6 +399,23 @@ void test_kruskal() {
     }
 }
 
+void test_prim() {
+    graph g(6);
+    g.add(0, 1, 3);
+    g.add(0, 4, 5);
+    g.add(1, 2, 5);
+    g.add(1, 4, 6);
+    g.add(2, 3, 9);
+    g.add(2, 5, 3);
+    g.add(3, 5, 7);
+    g.add(4, 5, 2);
+
+    cout << "Prim:\n";
+    for (auto & e : g.prim()) {
+        cout << e.first << " " << e.second << "\n";
+    }
+}
+
 int main() {
     graph g(5);
     g.add(0, 1);
@@ -384,5 +433,6 @@ int main() {
     test_floyd_warshall2();
     test_find_union();
     test_kruskal();
+    test_prim();
     return 0;
 }

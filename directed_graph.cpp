@@ -16,7 +16,8 @@ public:
     void add_two_way(int from, int to, int value);
     vector<int> topological_sort();
     vector<int> number_of_paths(int v);
-    friend ostream & operator<<(ostream & s, directed_graph & g);
+    directed_graph reversed();
+    friend ostream & operator<<(ostream & s, const directed_graph & g);
 };
 
 directed_graph::directed_graph(int n): n(n) {
@@ -27,7 +28,7 @@ directed_graph::~directed_graph() {
     delete[] nodes;
 }
 
-ostream & operator<<(ostream & s, directed_graph & g) {
+ostream & operator<<(ostream & s, const directed_graph & g) {
     for (int i = 0; i < g.n; i++) {
         s << i << ": ";
         for (auto & e : g.nodes[i]) {
@@ -132,6 +133,26 @@ void test_number_of_paths() {
     }
 }
 
+directed_graph directed_graph::reversed() {
+    directed_graph g(n);
+    for (int u = 0; u < n; u++) {
+        for (auto & e : nodes[u]) {
+            g.add(e.first, u, e.second);
+        }
+    }
+    return g;
+}
+
+void test_reversed() {
+    directed_graph g(4);
+    g.add(0, 1, 2);
+    g.add(1, 2, 5);
+    g.add(1, 3, 7);
+    g.add(2, 3, 11);
+    g.add(3, 2, 13);
+    cout << g << g.reversed();
+}
+
 int main() {
     directed_graph g(5);
     g.add_two_way(0, 1);
@@ -143,5 +164,6 @@ int main() {
     cout << g;
     test_topological_sort();
     test_number_of_paths();
+    test_reversed();
     return 0;
 }
